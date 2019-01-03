@@ -18,9 +18,16 @@ class App extends Component {
       searchMonth: {
         posts: [],
         postCount: 0,
-        shiftcount:0
+        shiftcount: 0,
+        date: ""
+      },
+      searchValues: {
+        month: "",
+        year: ""
       }
     }
+
+    this.search = this.search.bind(this);
   }
   
 
@@ -39,7 +46,6 @@ class App extends Component {
       })
     });
 
-    
 
     // previous month
     var prevFirstDay = new Date(date.getFullYear(), date.getMonth() - 1, 1);
@@ -47,6 +53,7 @@ class App extends Component {
 
     prevFirstDay = prevFirstDay.toISOString();
     prevLastDay = prevLastDay.toISOString();
+
 
     this.getDataMonth(prevFirstDay, prevLastDay).then((data) => {
       this.setState({
@@ -98,6 +105,27 @@ class App extends Component {
 
   }
 
+  search(){
+    var date = this.state.searchValues.year + "-" + this.state.searchValues.month + "-01T00:00:00";
+
+    date = new Date(date);
+    
+    var searchFirstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+    var searchLastDay = new Date(date.getFullYear(), date.getMonth() + 1, 1);
+
+    searchFirstDay = searchFirstDay.toISOString();
+    searchLastDay = searchLastDay.toISOString();
+
+    this.getDataMonth(searchFirstDay, searchLastDay).then((data) => {
+      this.setState({
+        searchMonth: {
+          ...data,
+          date: date.toLocaleString('en-us', { month: 'long' }) + ", " + date.getFullYear()
+        }
+      })
+    });
+  }
+
   render() {
     return (
       <div className="app">
@@ -117,6 +145,29 @@ class App extends Component {
             <h2>{this.state.previousMonth.shiftcount} of which were between 2am and 7am.</h2>
           </div>
           
+          <div className="main">
+            <h1>Search</h1>
+
+            <label>month number</label>
+            <input type="text" value={this.state.searchValues.month} onChange={(event) => {this.setState({searchValues: {month: event.target.value, year: this.state.searchValues.year}})}} />
+            
+            <label>year</label>
+            <input type="text" value={this.state.searchValues.year} onChange={(event) => {this.setState({searchValues: {month: this.state.searchValues.month, year: event.target.value}})}} />
+            
+            <input type="button" value="submit" onClick={this.search}/>
+
+            {
+              this.state.searchMonth.postCount != 0 &&
+              
+              <React.Fragment>
+                <h1>
+                  You posted {this.state.searchMonth.postCount} articles on {this.state.searchMonth.date}.
+                </h1>
+  
+                <h2>{this.state.searchMonth.shiftcount} of which were between 2am and 7am.</h2>
+              </React.Fragment>
+            }
+          </div>
       </div>
     );
   }
