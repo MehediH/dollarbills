@@ -195,7 +195,7 @@ class App extends Component {
     return (
       <div className="app">
           <header>
-            <h1>THURROTT 💸💰</h1>
+            <h1>DOLLAR BILLS 💸💰</h1>
 
             <div class="search">
               <label>Author ID:</label>
