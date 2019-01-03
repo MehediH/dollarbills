@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import './App.css';
 import loader from "./loader.svg";
+import search from "./search.svg";
 
 class App extends Component {
   constructor(props) {
@@ -22,8 +23,9 @@ class App extends Component {
         posts: [],
         postCount: 0,
         shiftcount: 0,
-        date: "",
-        display: true
+        display: true,
+        message: "",
+        textDetails: ""
       },
       searchValues: {
         month: "01",
@@ -129,19 +131,38 @@ class App extends Component {
     var searchFirstDay = new Date(date.getFullYear(), date.getMonth(), 1);
     var searchLastDay = new Date(date.getFullYear(), date.getMonth() + 1, 1);
 
-    
-    searchFirstDay = searchFirstDay.toISOString();
-    searchLastDay = searchLastDay.toISOString();
-
-    this.getDataMonth(searchFirstDay, searchLastDay).then((data) => {
+    try{
+      searchFirstDay = searchFirstDay.toISOString();
+      searchLastDay = searchLastDay.toISOString();
+  
+      this.getDataMonth(searchFirstDay, searchLastDay).then((data) => {
+        this.setState({
+          searchMonth: {
+            ...data,
+            display: true,
+            message: "You posted " + data.postCount + " articles on " + date.toLocaleString('en-us', { month: 'long' }) + " " + date.getFullYear(),
+            textDetails: data.shiftcount + " of which were between 2am and 7am."
+          }
+        })
+        
+        if(this.state.searchMonth.display && this.state.searchMonth.postCount == 0){
+          this.setState({
+            searchMonth: {
+              display: true,
+              message: "Oops, nothing was fonud!",
+              textDetails: "Unfortunately, we couldn't find any articles published that month."
+            }
+          })
+        }
+      });
+    } catch(error){
       this.setState({
         searchMonth: {
-          ...data,
-          date: date.toLocaleString('en-us', { month: 'long' }) + " " + date.getFullYear(),
-          display: true
+          message: "Something went wrong.",
+          textDetails: "It's possible the year entered is an incorrect format or an incorrect year."
         }
       })
-    });
+    }
   }
 
   updateAuthor(){
@@ -160,94 +181,108 @@ class App extends Component {
     }
   }
 
+  handlePress(e, m){
+    if(e.key === "Enter"){
+      if(m === "author"){
+        this.updateAuthor();
+      } else{
+        this.search();
+      }
+    }
+  }
+
   render() {
     return (
       <div className="app">
           <header>
             <h1>THURROTT 💸💰</h1>
 
+            <div class="search">
+              <label>Author ID:</label>
+              <input type="text" value={this.state.author} onKeyPress={(e) => {this.handlePress(e, "author")}} onChange={(event) => {this.setState({author: event.target.value})}} />
+              <button onClick={this.updateAuthor}><img src={search}/></button>
+            </div>
           </header>
-          <label>Author ID</label>
-         
 
-          <input type="text" value={this.state.author} onChange={(event) => {this.setState({author: event.target.value})}} />
-          <input type="button" value="submit" onClick={this.updateAuthor}/>
+          <div className="content">
+            <div class="current main">
+              {
+                this.state.display === false ? <img src={loader} className="App-logo" alt="logo" /> :
 
-          <div className="main">
-            {
-              this.state.display === false ? <img src={loader} className="App-logo" alt="logo" /> :
+                <div className="meta">
+                  <h1>⌛</h1>
+                  <h1>
+                    You posted {this.state.postCount} articles this month.
+                  </h1>
+      
+                  <h2>{this.state.shiftcount} of which were between 2am and 7am.</h2>
 
-              <React.Fragment>
-                <h1>
-                  You posted {this.state.postCount} articles this month.
-                </h1>
-    
-                <h2>{this.state.shiftcount} of which were between 2am and 7am.</h2>
+                </div>
 
-              </React.Fragment>
+              }
+            </div>
 
-            }
+            <div class="next main">
+              {
+                this.state.previousMonth.display === false ? <img src={loader} className="App-logo" alt="logo" /> :
+
+                <div className="meta">
+                  <h1>🥳</h1>
+                  <h1>
+                    You posted {this.state.previousMonth.postCount} articles last month.
+                  </h1>
+
+                  <h2>{this.state.previousMonth.shiftcount} of which were between 2am and 7am.</h2>
+
+                </div>
+
+              }
+            </div>
           </div>
 
-          <div className="main">
+          <div className="main search-content">
+            <h1>Search 🔍</h1>
 
-            {
-              this.state.previousMonth.display === false ? <img src={loader} className="App-logo" alt="logo" /> :
+            <div className="filters">
+              <div>
+                <label>Month</label>
+                <select value={this.state.searchValues.month} onChange={(event) => {this.setState({searchValues: {month: event.target.value, year: this.state.searchValues.year}})}}>
+                  <option value="01">January</option>
+                  <option value="02">February</option>
+                  <option value="03">March</option>
+                  <option value="04">April</option>
+                  <option value="05">May</option>
+                  <option value="06">June</option>
+                  <option value="07">July</option>
+                  <option value="08">August</option>
+                  <option value="09">September</option>
+                  <option value="10">October</option>
+                  <option value="11">November</option>
+                  <option value="12">December</option>
+                </select>
+              </div>
 
-              <React.Fragment>
-                <h1>
-                  You posted {this.state.previousMonth.postCount} articles last month.
-                </h1>
-
-                <h2>{this.state.previousMonth.shiftcount} of which were between 2am and 7am.</h2>
-
-              </React.Fragment>
-
-            }
-
-          </div>
-          
-          <div className="main">
-            <h1>Search</h1>
-
-            <label>month number</label>
-            <select value={this.state.searchValues.month} onChange={(event) => {this.setState({searchValues: {month: event.target.value, year: this.state.searchValues.year}})}}>
-              <option value="01">January</option>
-              <option value="02">February</option>
-              <option value="03">March</option>
-              <option value="04">April</option>
-              <option value="05">May</option>
-              <option value="06">June</option>
-              <option value="07">July</option>
-              <option value="08">August</option>
-              <option value="09">September</option>
-              <option value="10">October</option>
-              <option value="11">November</option>
-              <option value="12">December</option>
-            </select>
-
-            
-            <label>year</label>
-            <input type="text" value={this.state.searchValues.year} onChange={(event) => {this.setState({searchValues: {month: this.state.searchValues.month, year: event.target.value}})}} />
-            
-            <input type="button" value="submit" onClick={this.search}/>
-
+              <div>
+                <label>Year</label>
+                <input type="text" value={this.state.searchValues.year} onKeyPress={(e) => {this.handlePress(e, "search")}} onChange={(event) => {this.setState({searchValues: {month: this.state.searchValues.month, year: event.target.value}})}} />
+              </div>
+              
+              <button onClick={this.search}>Search</button>
+            </div>
+              
             {
               this.state.searchMonth.display === false ? <img src={loader} className="App-logo" alt="logo" /> :
 
-              this.state.searchMonth.postCount != 0 &&
+              this.state.searchMonth.postCount !== 0  &&
               
-              <React.Fragment>
-                <h1>
-                  You posted {this.state.searchMonth.postCount} articles on {this.state.searchMonth.date}.
-                </h1>
-  
-                <h2>{this.state.searchMonth.shiftcount} of which were between 2am and 7am.</h2>
-              </React.Fragment>
-
+                <div className="main">
+                  <div className="meta">
+                    <h1>{this.state.searchMonth.message}</h1>
+      
+                    <h2>{this.state.searchMonth.textDetails}</h2>
+                  </div>
+                </div>
             }
-
-  
           </div>
       </div>
     );
