@@ -168,6 +168,12 @@ button img{
     padding: 30px;
   }
 
+  .search label{
+    display: block;
+    height: auto;
+    line-height: 0px;
+  }
+
   header{
     flex-direction: column;
   }
