@@ -161,6 +161,14 @@ button img{
   body{
     padding: 0 25px;
   }
+
+  header{
+    padding-top: 30px;
+  }
+
+  header h1{
+    font-size: 1.7em;
+  }
   
   .content{
     grid-auto-flow: row;
