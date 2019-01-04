@@ -168,8 +168,9 @@ button img{
 
   header h1{
     font-size: 1.7em;
+    margin-bottom: 25px;
   }
-  
+
   .content{
     grid-auto-flow: row;
     grid-template-rows: 1fr 1fr;
@@ -178,6 +179,10 @@ button img{
 
   .main{
     padding: 30px;
+  }
+
+  .search{
+    line-height: 55px;
   }
 
   .search label{
