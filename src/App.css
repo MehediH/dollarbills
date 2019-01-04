@@ -156,3 +156,50 @@ button img{
     transform: rotate(360deg);
   }
 }
+
+@media(max-width: 820px){
+  .content{
+    grid-auto-flow: row;
+    grid-template-rows: 1fr 1fr;
+    grid-template-columns: none;
+  }
+
+  .main{
+    padding: 30px;
+  }
+
+  header{
+    flex-direction: column;
+  }
+
+  .main h1{
+    font-size: 1.5em;
+  }
+
+  .main h2{
+    font-size: 1em;
+  }
+
+  .filters{
+    flex-direction: column;
+  }
+
+  .filters div{
+    margin-right: 0px;
+    overflow: hidden;
+  }
+
+  .search-content{
+    margin-bottom: 100px;
+  }
+
+  .filters label{
+    display: block;
+    margin-bottom: 10px;
+  }
+
+  .filters input, select{
+    margin-bottom: 20px;
+    width: 100%;
+  }
+}
