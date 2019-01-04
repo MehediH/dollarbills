@@ -17,6 +17,17 @@ header{
   justify-content: space-between;
 }
 
+header h1 a{
+  cursor: pointer;
+  display: block;
+  float: right;
+  padding-left: 10px;
+}
+
+header h1 a:hover{
+  animation: App-logo-spin infinite 1s ease-in-out;
+}
+
 header .search{
   line-height: 90px;
   opacity: 0.5;
@@ -90,7 +101,7 @@ button img{
 }
 
 .search-content{
-  margin-top: 50px;
+  margin: 50px 0; 
 }
 
 .filters{
@@ -210,10 +221,6 @@ button img{
   .filters div{
     margin-right: 0px;
     overflow: hidden;
-  }
-
-  .search-content{
-    margin-bottom: 100px;
   }
 
   .filters label{
