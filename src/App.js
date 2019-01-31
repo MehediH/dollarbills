@@ -49,15 +49,29 @@ class App extends Component {
     var firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
     var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 1);
 
+    
     firstDay = firstDay.toISOString();
     lastDay = lastDay.toISOString();
 
+
     this.getDataMonth(firstDay, lastDay).then((data) => {
-      this.setState({
-        ...data,
-        display: true
-      })
-    });
+      return data;
+    }).then((data) => {
+      this.getDataMonth(firstDay, lastDay, 100).then((data2) => {
+        data = {
+          posts: data.posts.push(data2.posts),
+          postCount: data.postCount + data2.postCount,
+          shiftcount: data.shiftcount + data2.shiftcount
+        }
+
+        return data;
+      }).then((data) => {
+        this.setState({
+          ...data,
+          display: true
+        })
+      });;
+    })
   }
 
   getPreviousMonth(){
@@ -68,21 +82,33 @@ class App extends Component {
     prevFirstDay = prevFirstDay.toISOString();
     prevLastDay = prevLastDay.toISOString();
 
-
     this.getDataMonth(prevFirstDay, prevLastDay).then((data) => {
-      this.setState({
-        previousMonth: {
-          ...data,
-          display: true
+      return data;
+    }).then((data) => {
+      this.getDataMonth(prevFirstDay, prevLastDay, 100).then((data2) => {
+        data = {
+          posts: data.posts.push(data2.posts),
+          postCount: data.postCount + data2.postCount,
+          shiftcount: data.shiftcount + data2.shiftcount
         }
-      })
-    });
+
+        return data;
+      }).then((data) => {
+        this.setState({
+          previousMonth: {
+            ...data,
+            display: true
+          }
+        })
+      });
+    })
   }
 
 
-  getDataMonth(start, end){
+  getDataMonth(start, end, offset){
+    if(offset === undefined) offset = 0;
 
-    return fetch('https://www.thurrott.com/wp-json/wp/v2/posts?author=' + this.state.author + '&per_page=100&after=' + start + '&before=' + end).then((response) => response.json())
+    return fetch('https://www.thurrott.com/wp-json/wp/v2/posts?author=' + this.state.author + '&per_page=100&offset=' + offset + '&after=' + start + '&before=' + end).then((response) => response.json())
       .then((responseJson) => {
                 
         var tempShiftCount = 0;
@@ -103,6 +129,7 @@ class App extends Component {
             tempShiftCount++;
           }
 
+          return tempShiftCount;
         })
 
         var data = {
@@ -134,27 +161,42 @@ class App extends Component {
     try{
       searchFirstDay = searchFirstDay.toISOString();
       searchLastDay = searchLastDay.toISOString();
-  
+      
       this.getDataMonth(searchFirstDay, searchLastDay).then((data) => {
-        this.setState({
-          searchMonth: {
-            ...data,
-            display: true,
-            message: "You posted " + data.postCount + " articles on " + date.toLocaleString('en-us', { month: 'long' }) + " " + date.getFullYear(),
-            textDetails: data.shiftcount + " of which were between 2am and 7am."
-          }
-        })
+        return data;
+      }).then((data) => {
         
-        if(this.state.searchMonth.display && this.state.searchMonth.postCount == 0){
+        this.getDataMonth(searchFirstDay, searchLastDay, 100).then((data2) => {
+          data = {
+            posts: data.posts.push(data2.posts),
+            postCount: data.postCount + data2.postCount,
+            shiftcount: data.shiftcount + data2.shiftcount
+          }
+  
+          return data;
+        }).then((data) => {
           this.setState({
             searchMonth: {
+              ...data,
               display: true,
-              message: "Oops, nothing was fonud!",
-              textDetails: "Unfortunately, we couldn't find any articles published that month."
+              message: "You posted " + data.postCount + " articles on " + date.toLocaleString('en-us', { month: 'long' }) + " " + date.getFullYear(),
+              textDetails: data.shiftcount + " of which were between 2am and 7am."
             }
           })
-        }
-      });
+
+          if(this.state.searchMonth.display && this.state.searchMonth.postCount === 0){
+            this.setState({
+              searchMonth: {
+                display: true,
+                message: "Oops, nothing was fonud!",
+                textDetails: "Unfortunately, we couldn't find any articles published that month."
+              }
+            })
+          }
+        });
+      })
+
+      
     } catch(error){
       this.setState({
         searchMonth: {
